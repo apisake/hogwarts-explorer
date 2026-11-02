@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Marauder's Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --night: #070b1d;
+      --gold: #d9b45b;
+      --gold-soft: rgba(217, 180, 91, 0.35);
+      --glass: rgba(14, 18, 40, 0.88);
+      --border: rgba(217, 180, 91, 0.18);
+      --text: #efe6d2;
+      --muted: #a39b8a;
+      --gryffindor: #ae0001;
+      --slytherin: #1a7a46;
+      --ravenclaw: #2a5fb4;
+      --hufflepuff: #e3b324;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: radial-gradient(ellipse at top, #141b3d 0%, var(--night) 60%) fixed;
+      color: var(--text);
+      font-family: "Crimson Pro", Georgia, serif;
+      font-size: 18px;
+    }
+    a { color: inherit; }
+    h1, h2, h3, .logo, nav a { font-family: "Cinzel", serif; }
+
+    /* ---------- The enchanted ceiling: stars and floating candles ---------- */
+    #stars { position: fixed; inset: 0; z-index: 0; }
+    #candles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .candle {
+      position: absolute; width: 7px; height: 32px; border-radius: 2px;
+      background: linear-gradient(90deg, #d8ccb0, #fff8e6 50%, #cbbd9c);
+      animation: bob 7s ease-in-out infinite alternate;
+    }
+    .candle::before { /* the flame */
+      content: ""; position: absolute; left: 50%; top: -13px;
+      width: 8px; height: 13px; transform: translateX(-50%);
+      border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+      background: radial-gradient(circle at 50% 70%, #fffbe0 0 25%, #ffc44d 50%, rgba(255, 140, 30, 0) 75%);
+      box-shadow: 0 0 18px 6px rgba(255, 175, 60, 0.35);
+      animation: flicker 0.18s infinite alternate;
+    }
+    @keyframes bob { to { transform: translateY(-14px); } }
+    @keyframes flicker { to { transform: translateX(-50%) scale(0.9, 1.08); opacity: 0.85; } }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto;
+      padding: 26px 16px 60px;
+    }
+
+    /* ---------- Header and navigation ---------- */
+    header { text-align: center; margin-bottom: 20px; }
+    .logo {
+      font-weight: 900; font-size: clamp(26px, 5.5vw, 46px); margin: 0;
+      color: var(--gold); letter-spacing: 0.04em;
+      text-shadow: 0 0 30px rgba(217, 180, 91, 0.35);
+    }
+    .tagline { color: var(--muted); font-style: italic; margin-top: 4px; }
+
+    nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 28px; }
+    nav a {
+      text-decoration: none; font-size: 13px; letter-spacing: 0.05em;
+      padding: 9px 15px; border-radius: 999px;
+      background: var(--glass); border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    nav a:hover { border-color: var(--gold); }
+    nav a.active { background: var(--gold); color: #1a1405; border-color: var(--gold); font-weight: 700; }
+
+    /* ---------- Shared pieces ---------- */
+    .panel {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 20px; padding: clamp(18px, 4vw, 34px);
+      animation: rise 0.5s ease both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+    section { margin-top: 34px; }
+    h2 {
+      font-size: clamp(20px, 3vw, 26px); color: var(--gold); margin: 0 0 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-soft), transparent); }
+
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .card {
+      display: flex; gap: 12px; align-items: center; text-decoration: none;
+      background: var(--glass); border: 1px solid var(--border); border-left: 3px solid var(--border);
+      border-radius: 14px; padding: 10px; min-width: 0;
+      transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+      animation: rise 0.4s ease both;
+    }
+    .card:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 10px 28px rgba(217, 180, 91, 0.15); }
+    .card.gryffindor { border-left-color: var(--gryffindor); }
+    .card.slytherin { border-left-color: var(--slytherin); }
+    .card.ravenclaw { border-left-color: var(--ravenclaw); }
+    .card.hufflepuff { border-left-color: var(--hufflepuff); }
+    .thumb {
+      flex: none; width: 58px; height: 58px; border-radius: 10px; overflow: hidden;
+      background: rgba(255, 255, 255, 0.05); display: grid; place-items: center; font-size: 26px;
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .thumb:empty::after { content: attr(data-icon); }
+    .card h3 { font-size: 15px; margin: 0 0 3px; line-height: 1.25; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.3; }
+    .card > div:last-child { min-width: 0; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      text-decoration: none; font-size: 16px; padding: 5px 12px; border-radius: 999px;
+      border: 1px solid var(--border); background: rgba(255, 255, 255, 0.03);
+    }
+    a.chip:hover { border-color: var(--gold); color: var(--gold); }
+    .chip small { color: var(--muted); }
+
+    .btn {
+      display: inline-block; text-decoration: none; cursor: pointer;
+      font: inherit; font-size: 16px; color: var(--text);
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 999px; padding: 8px 18px; transition: border-color 0.2s;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--gold); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn.gold { background: var(--gold); color: #1a1405; border-color: var(--gold); font-weight: 600; }
+
+    .badge { display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 15px; border: 1px solid var(--border); }
+    .badge.gryffindor { background: var(--gryffindor); border-color: var(--gryffindor); }
+    .badge.slytherin { background: var(--slytherin); border-color: var(--slytherin); }
+    .badge.ravenclaw { background: var(--ravenclaw); border-color: var(--ravenclaw); }
+    .badge.hufflepuff { background: var(--hufflepuff); border-color: var(--hufflepuff); color: #241a00; }
+
+    .facts {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    }
+    .fact { background: rgba(8, 11, 30, 0.6); padding: 12px 14px; box-shadow: 0 0 0 0.5px var(--border); }
+    .fact .label { font-family: "Cinzel", serif; color: var(--muted); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .fact .value { margin-top: 3px; font-size: 17px; }
+
+    .message { text-align: center; color: var(--muted); padding: 50px 16px; font-style: italic; }
+    .message.error { color: #f3b0a8; }
+    .spinner {
+      width: 40px; height: 40px; margin: 0 auto 14px; border-radius: 50%;
+      border: 3px solid rgba(217, 180, 91, 0.15); border-top-color: var(--gold);
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------- Harry's page ---------- */
+    .hero {
+      display: grid; grid-template-columns: auto 1fr; gap: clamp(18px, 4vw, 40px); align-items: center;
+      background: linear-gradient(135deg, rgba(174, 0, 1, 0.28), rgba(14, 18, 40, 0.75) 55%), var(--glass);
+    }
+    .portrait {
+      width: clamp(150px, 26vw, 230px); aspect-ratio: 3 / 4; border-radius: 50% / 40%;
+      overflow: hidden; border: 4px solid var(--gold);
+      box-shadow: 0 0 0 6px rgba(217, 180, 91, 0.15), 0 0 50px rgba(217, 180, 91, 0.35);
+      background: #1b1730;
+    }
+    .portrait img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .alias {
+      color: var(--gold); font-style: italic; font-size: 19px; min-height: 1.4em;
+      transition: opacity 0.5s;
+    }
+    .hero h1 { font-size: clamp(28px, 5vw, 50px); margin: 4px 0 12px; line-height: 1.1; }
+    .hero h1 .bolt { color: var(--gold); }
+    .hero .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+
+    .timeline { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .year {
+      text-decoration: none; text-align: center;
+      background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
+      transition: transform 0.15s, border-color 0.2s;
+      animation: rise 0.4s ease both;
+    }
+    .year:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .year img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); }
+    .year .num { font-family: "Cinzel", serif; color: var(--gold); font-size: 13px; letter-spacing: 0.1em; margin-top: 10px; }
+    .year .name { font-size: 15px; line-height: 1.25; margin-top: 2px; }
+    .year .film { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .year .film a { color: var(--muted); }
+    .year .film a:hover { color: var(--gold); }
+
+    .spell .incantation { font-style: italic; color: var(--gold); }
+
+    /* ---------- List view ---------- */
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    .search {
+      flex: 1; min-width: 200px; font: inherit; color: var(--text);
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 16px; outline: none;
+    }
+    .search:focus { border-color: var(--gold); }
+    .total { color: var(--muted); font-size: 16px; }
+    .pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 22px; }
+
+    /* ---------- Detail view ---------- */
+    .back { display: inline-block; color: var(--muted); text-decoration: none; margin-bottom: 14px; }
+    .back:hover { color: var(--gold); }
+    .detail-head { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    .detail-head .portrait { width: clamp(110px, 20vw, 160px); }
+    .detail-head .portrait.book { border-radius: 8px; aspect-ratio: 2 / 3; }
+    .kind { color: var(--muted); font-family: "Cinzel", serif; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .detail-head h1 { font-size: clamp(24px, 4vw, 38px); margin: 4px 0 10px; color: var(--gold); line-height: 1.15; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .prose { line-height: 1.65; font-size: 18px; margin: 0; }
+    .detail h4 {
+      font-family: "Cinzel", serif; color: var(--muted); font-size: 12px; letter-spacing: 0.14em;
+      text-transform: uppercase; margin: 26px 0 10px;
+    }
+    .detail ul { margin: 0; padding-left: 20px; line-height: 1.6; }
+    details.chapter { border-top: 1px solid var(--border); padding: 10px 0; }
+    details.chapter summary { cursor: pointer; }
+    details.chapter p { color: #d6ccb6; line-height: 1.6; margin: 10px 0 4px; }
+    details.raw { margin-top: 26px; }
+    details.raw summary { cursor: pointer; color: var(--muted); }
+    pre {
+      background: #05071a; border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; color: #c9c1ad;
+    }
+
+    footer { position: relative; z-index: 1; text-align: center; color: var(--muted); font-size: 14px; padding: 0 16px 40px; line-height: 1.6; }
+    footer a { color: var(--gold); }
+
+    @media (max-width: 640px) {
+      .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+      .hero .badges { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <div id="candles"></div>
+
+  <main>
+    <header>
+      <div class="logo">The Marauder's Index</div>
+      <div class="tagline">I solemnly swear that I am up to no good.</div>
+    </header>
+    <nav id="nav"></nav>
+    <div id="view"></div>
+  </main>
+
+  <footer>
+    <div id="source"></div>
+    Data from the <a href="https://hogwarts-api.com" target="_blank">Hogwarts API</a>, compiled from Potter DB and the
+    <a href="https://harrypotter.fandom.com" target="_blank">Harry Potter Wiki</a> (CC-BY-SA).
+    An unofficial fan project, not affiliated with Warner Bros. or J.K. Rowling.
+  </footer>
+
+  <script>
+    const API = "https://hogwarts-api.com/api";
+    const PAGE_SIZE = 24;
+    const SNAPSHOT_DATE = "2 November 2026";
+
+    // How each collection looks in the app
+    const year = (date) => date ? date.slice(0, 4) : "";
+    const COLLECTIONS = {
+      characters: { label: "Characters", one: "Character", icon: "🧙", image: (r) => r.image,
+                    sub: (r) => [r.house, r.species].filter(Boolean).join(" · ") },
+      books:      { label: "Books", one: "Book", icon: "📚", image: (r) => r.cover,
+                    sub: (r) => `${year(r.release_date)} · ${r.pages} pages` },
+      movies:     { label: "Movies", one: "Movie", icon: "🎬", image: (r) => r.poster,
+                    sub: (r) => [year(r.release_date), r.running_time].filter(Boolean).join(" · ") },
+      spells:     { label: "Spells", one: "Spell", icon: "✨", image: (r) => r.image,
+                    sub: (r) => [incantation(r), r.category].filter(Boolean).join(" · ") },
+      potions:    { label: "Potions", one: "Potion", icon: "🧪", image: (r) => r.image,
+                    sub: (r) => r.difficulty || r.effect },
+      creatures:  { label: "Creatures", one: "Creature", icon: "🐉", image: (r) => r.image,
+                    sub: (r) => r.classification ? `Ministry class ${r.classification}` : r.status },
+    };
+
+    // Harry's world, by slug
+    const FRIENDS = ["ronald-weasley", "hermione-granger", "rubeus-hagrid", "albus-dumbledore", "sirius-black", "remus-lupin",
+                     "neville-longbottom", "luna-lovegood", "ginevra-weasley", "dobby", "hedwig", "minerva-mcgonagall"];
+    const FOES = ["tom-riddle", "draco-malfoy", "bellatrix-lestrange", "dolores-umbridge", "peter-pettigrew"];
+    const SIGNATURE_SPELLS = ["disarming-charm", "patronus-charm", "stunning-spell", "summoning-charm",
+                              "levitation-charm", "dangling-jinx", "laceration-curse"];
+    const FILM_FOR_BOOK = { // book slug -> film slugs
+      "harry-potter-and-the-deathly-hallows": ["harry-potter-and-the-deathly-hallows-part-1", "harry-potter-and-the-deathly-hallows-part-2"],
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const view = $("view");
+    const listState = {};
+    let aliasTimer = null;
+
+    // ---------- Getting data: the live API, or a saved copy if the browser can't reach it ----------
+
+    // The live API doesn't send the CORS header browsers need, so pages on other sites can't read it.
+    // Try it once; if it's blocked, read the copy of the same data saved next to this page in data/.
+    let source = "live";
+    const ready = fetch(`${API}/books?page_size=1`)
+      .then((res) => { if (!res.ok) throw new Error(); })
+      .catch(() => { source = "snapshot"; })
+      .finally(showSource);
+
+    function showSource() {
+      $("source").textContent = source === "live"
+        ? "✨ Reading live from the Hogwarts API."
+        : `📜 Reading a saved copy of the Hogwarts API data (taken ${SNAPSHOT_DATE}) — the live API doesn't let browser apps read it yet.`;
+    }
+
+    async function getJson(url) {
+      const res = await fetch(url);
+      const body = await res.json().catch(() => ({}));
+      // The API puts the useful explanation in data.reason, and a fun one in statusMessage
+      if (!res.ok) throw new Error(body.data?.reason || body.statusMessage || `The API returned an error (${res.status}).`);
+      return body;
+    }
+
+    const snapshotFiles = {};
+    const snapshot = (col) => snapshotFiles[col] ||= fetch(`data/${col}.json`).then((res) => {
+      if (!res.ok) throw new Error("Couldn't open the saved data.");
+      return res.json();
+    });
+
+    const titleOf = (r) => r.name || r.title;
+    const slugify = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    // One page of a collection: { data: [...], meta: { page, total_pages, total_records, ... } }
+    async function list(col, { page = 1, search = "" }) {
+      await ready;
+      if (source === "live") {
+        const query = new URLSearchParams({ page, page_size: PAGE_SIZE });
+        if (search) query.set("search", search);
+        return getJson(`${API}/${col}?${query}`);
+      }
+      // Same rules as the API: substring match on name/title, page clamped to the last page
+      const all = await snapshot(col);
+      const term = search.toLowerCase();
+      const matches = term ? all.filter((r) => titleOf(r).toLowerCase().includes(term)) : all;
+      const totalPages = Math.max(1, Math.ceil(matches.length / PAGE_SIZE));
+      const p = Math.min(Math.max(1, page), totalPages);
+      return {
+        data: matches.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE),
+        meta: { page: p, page_size: PAGE_SIZE, total_pages: totalPages, total_records: matches.length, search: search || null },
+      };
+    }
+
+    // One record by slug (or by name — the API accepts anything that slugifies to a known slug)
+    const records = new Map();
+    function one(col, slug) {
+      const key = `${col}/${slug}`;
+      if (!records.has(key)) {
+        records.set(key, (async () => {
+          await ready;
+          if (source === "live") return (await getJson(`${API}/${col}/${encodeURIComponent(slug)}`)).data;
+          const all = await snapshot(col);
+          const found = all.find((r) => r.slug === slug) || all.find((r) => slugify(titleOf(r)) === slugify(slug));
+          if (!found) throw new Error(`No ${COLLECTIONS[col].one.toLowerCase()} found for "${slug}".`);
+          return found;
+        })());
+      }
+      return records.get(key);
+    }
+    const maybe = (col, slug) => one(col, slug).catch(() => null);
+
+    // ---------- Formatting helpers ----------
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const pretty = (key) => key.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+    const houseClass = (house) => house ? house.split(/\W/)[0].toLowerCase() : "";
+    const HOUSE_ICON = { gryffindor: "🦁", slytherin: "🐍", ravenclaw: "🦅", hufflepuff: "🦡" };
+    // "Accio(AH-kee-oh)" -> "Accio"
+    const incantation = (spell) => spell.incantation ? spell.incantation.replace(/\s*\(.*$/, "") : "";
+
+    function formatValue(value) {
+      if (typeof value === "boolean") return value ? "Yes" : "No";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return new Date(value + "T00:00:00Z").toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+      }
+      return String(value);
+    }
+
+    function thumb(col, r) {
+      const img = COLLECTIONS[col].image(r);
+      // If the picture fails to load, remove it so the icon shows instead
+      return `<div class="thumb" data-icon="${COLLECTIONS[col].icon}">${img ? `<img src="${esc(img)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+    }
+
+    function card(col, r, i = 0, sub = COLLECTIONS[col].sub(r)) {
+      return `
+        <a class="card ${houseClass(r.house)}" href="#${col}/${r.slug}" style="animation-delay:${i * 25}ms">
+          ${thumb(col, r)}
+          <div><h3>${esc(titleOf(r))}</h3><p>${esc(sub || "")}</p></div>
+        </a>`;
+    }
+
+    const loading = (text) => `<div class="message"><div class="spinner"></div>${text}</div>`;
+    const errorBox = (err) => `<div class="message error">⚡ ${esc(err.message)}</div>`;
+
+    // Turn "Lily Potter (I) (née Evans) (mother) †" into a link to her page, labelled "mother"
+    function personChip(text) {
+      const relation = (text.match(/\(([^()]*)\)\s*†?\s*$/) || [])[1] || "";
+      const died = text.includes("†");
+      const maiden = (text.match(/\(née ([^)]+)\)/) || [])[1];
+      const name = text.replace(/†/g, "").replace(/\s*\((?!I+\))[^)]*\)/g, "").trim();
+      const candidates = [slugify(name)];
+      if (maiden) candidates.push(slugify(name.split(" ")[0] + " " + maiden));
+      return `<span class="chip person" data-candidates="${candidates.join(" ")}">${esc(name)}${died ? " †" : ""}${relation ? ` <small>${esc(relation)}</small>` : ""}</span>`;
+    }
+
+    // After the chips are on the page, turn the ones we can find into links
+    function linkPeople() {
+      document.querySelectorAll(".chip.person").forEach(async (chip) => {
+        for (const slug of chip.dataset.candidates.split(" ")) {
+          const found = await maybe("characters", slug);
+          if (!found) continue;
+          const link = document.createElement("a");
+          link.className = "chip";
+          link.href = `#characters/${found.slug}`;
+          link.innerHTML = chip.innerHTML;
+          chip.replaceWith(link);
+          return;
+        }
+      });
+    }
+
+    // ---------- Harry's page (the home page) ----------
+
+    async function showHarry() {
+      view.innerHTML = loading("Following the map to Harry…");
+      let harry;
+      try {
+        harry = await one("characters", "harry-potter");
+      } catch (err) {
+        return (view.innerHTML = errorBox(err));
+      }
+      if (route.current !== "harry") return;
+
+      const house = houseClass(harry.house);
+      view.innerHTML = `
+        <section class="panel hero" style="margin-top:0">
+          <div class="portrait"><img src="${esc(harry.image)}" alt="Harry Potter"></div>
+          <div>
+            <div class="alias" id="alias">The Boy Who Lived</div>
+            <h1><span class="bolt">⚡</span> ${esc(harry.name)}</h1>
+            <div class="badges">
+              <span class="badge ${house}">${HOUSE_ICON[house]} ${esc(harry.house)}</span>
+              <span class="badge">${esc(harry.blood_status)}</span>
+              ${harry.titles.map((t) => `<span class="badge">${esc(t)}</span>`).join("")}
+            </div>
+            <div class="facts">
+              ${[["Born", harry.born], ["Wand", harry.wands[0]], ["Patronus", harry.patronus], ["Boggart", harry.boggart]]
+                .map(([label, value]) => `<div class="fact"><div class="label">${label}</div><div class="value">${esc(value)}</div></div>`).join("")}
+            </div>
+            <p><a class="btn" href="#characters/harry-potter">Read Harry's full record →</a></p>
+          </div>
+        </section>
+
+        <section><h2>Friends &amp; allies</h2><div class="grid" id="friends">${loading("")}</div></section>
+        <section><h2>Foes</h2><div class="grid" id="foes">${loading("")}</div></section>
+        <section><h2>Seven years at Hogwarts</h2><div class="timeline" id="years">${loading("")}</div></section>
+        <section><h2>Signature spells</h2><div class="grid" id="spells">${loading("")}</div></section>
+        <section><h2>Family</h2><div class="chips">${harry.family_members.map(personChip).join("")}</div></section>
+        <section><h2>Loves</h2><div class="chips">${harry.romances.map(personChip).join("")}</div></section>
+        <section><h2>After Hogwarts</h2><div class="chips">${harry.jobs.map((j) => `<span class="chip">${esc(j)}</span>`).join("")}</div></section>`;
+
+      rotateAliases(harry.alias_names);
+      linkPeople();
+      fillCards("friends", "characters", FRIENDS);
+      fillCards("foes", "characters", FOES);
+      fillCards("spells", "spells", SIGNATURE_SPELLS, (s) => s.effect);
+      fillYears();
+    }
+
+    // Load several records at once and show them as cards (skipping any that aren't found)
+    async function fillCards(boxId, col, slugs, sub) {
+      const found = (await Promise.all(slugs.map((s) => maybe(col, s)))).filter(Boolean);
+      const box = $(boxId);
+      if (box) box.innerHTML = found.map((r, i) => card(col, r, i, sub ? sub(r) : undefined)).join("");
+    }
+
+    async function fillYears() {
+      const [books, movies] = await Promise.all([list("books", { page: 1 }), list("movies", { page: 1 })]);
+      const box = $("years");
+      if (!box) return;
+      box.innerHTML = books.data.map((book, i) => {
+        const filmSlugs = FILM_FOR_BOOK[book.slug] || [book.slug];
+        const films = movies.data.filter((m) => filmSlugs.includes(m.slug));
+        return `
+          <div class="year" style="animation-delay:${i * 60}ms">
+            <a href="#books/${book.slug}" style="text-decoration:none">
+              <img src="${esc(book.cover)}" alt="" loading="lazy">
+              <div class="num">YEAR ${i + 1} · ${1991 + i}</div>
+              <div class="name">${esc(book.title.replace("Harry Potter and the ", "The "))}</div>
+            </a>
+            <div class="film">${films.map((f) => `🎬 <a href="#movies/${f.slug}">${year(f.release_date)} film${films.length > 1 ? (f.slug.endsWith("2") ? " (Part 2)" : " (Part 1)") : ""}</a>`).join("<br>")}</div>
+          </div>`;
+      }).join("");
+    }
+
+    // Cycle through Harry's nicknames ("The Chosen One", "Undesirable No. 1", …)
+    function rotateAliases(aliases) {
+      // Skip people he only pretended to be ("Gregory Goyle (under disguise of Polyjuice Potion)")
+      const names = [...new Set(aliases
+        .filter((a) => !/disguise|name he/i.test(a))
+        .map((a) => a.replace(/\s*\(.*$/, "")))];
+      let i = 0;
+      clearInterval(aliasTimer);
+      aliasTimer = setInterval(() => {
+        const el = $("alias");
+        if (!el) return clearInterval(aliasTimer);
+        el.style.opacity = 0;
+        setTimeout(() => { el.textContent = names[i = (i + 1) % names.length]; el.style.opacity = 1; }, 500);
+      }, 3200);
+    }
+
+    // ---------- List view: search and pages ----------
+
+    function showList(col) {
+      const state = listState[col] ||= { page: 1, search: "" };
+      view.innerHTML = `
+        <div class="toolbar">
+          <input class="search" id="search" placeholder="Search ${COLLECTIONS[col].label.toLowerCase()}…" value="${esc(state.search)}">
+          <span class="total" id="total"></span>
+        </div>
+        <div id="results"></div>`;
+
+      let timer;
+      $("search").oninput = (e) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { // wait until typing pauses
+          state.search = e.target.value.trim();
+          state.page = 1;
+          loadPage(col);
+        }, 300);
+      };
+      loadPage(col);
+    }
+
+    async function loadPage(col) {
+      const state = listState[col];
+      $("results").innerHTML = loading("Summoning records…");
+      try {
+        const { data, meta } = await list(col, state);
+        if (route.current !== col) return;
+        $("total").textContent = `${meta.total_records.toLocaleString()} found`;
+        if (!data.length) {
+          $("results").innerHTML = `<div class="message">Nothing matches "${esc(state.search)}". Mischief managed?</div>`;
+          return;
+        }
+        state.page = meta.page;
+        $("results").innerHTML = `
+          <div class="grid">${data.map((r, i) => card(col, r, i)).join("")}</div>
+          <div class="pager">
+            <button class="btn" id="prevPage" ${meta.page > 1 ? "" : "disabled"}>← Previous</button>
+            <span class="total">Page ${meta.page} of ${meta.total_pages.toLocaleString()}</span>
+            <button class="btn" id="nextPage" ${meta.page < meta.total_pages ? "" : "disabled"}>Next →</button>
+          </div>`;
+        $("prevPage").onclick = () => { state.page--; loadPage(col); scrollTo(0, 0); };
+        $("nextPage").onclick = () => { state.page++; loadPage(col); scrollTo(0, 0); };
+      } catch (err) {
+        $("results").innerHTML = errorBox(err);
+      }
+    }
+
+    // ---------- Detail view: every field of one record ----------
+
+    async function showDetail(col, slug) {
+      view.innerHTML = loading("Opening the Restricted Section…");
+      let r;
+      try {
+        r = await one(col, slug);
+      } catch (err) {
+        return (view.innerHTML = `<a class="back" href="#${col}">← All ${col}</a>${errorBox(err)}`);
+      }
+      if (route.current !== `${col}/${slug}`) return;
+
+      const c = COLLECTIONS[col];
+      const img = c.image(r);
+      const skip = ["id", "slug", "name", "title", "image", "cover", "poster", "wiki", "trailer", "chapters"];
+      const people = ["family_members", "romances"];
+      const facts = [], paragraphs = [], lists = [], peopleLists = [];
+
+      for (const [key, value] of Object.entries(r)) {
+        if (skip.includes(key) || value === null || (Array.isArray(value) && !value.length)) continue; // missing data is null
+        if (people.includes(key)) peopleLists.push([key, value]);
+        else if (Array.isArray(value)) lists.push([key, value]);
+        else if (typeof value === "string" && value.length > 140) paragraphs.push([key, value]);
+        else facts.push([key, value]);
+      }
+
+      const house = houseClass(r.house);
+      view.innerHTML = `
+        <a class="back" href="#${col}">← All ${col}</a>
+        <article class="panel detail">
+          <div class="detail-head">
+            ${img ? `<div class="portrait ${col === "characters" ? "" : "book"}"><img src="${esc(img)}" alt="" onerror="this.parentNode.remove()"></div>` : ""}
+            <div>
+              <div class="kind">${c.icon} ${c.one}</div>
+              <h1>${esc(titleOf(r))}</h1>
+              <div class="actions">
+                ${r.house ? `<span class="badge ${house}">${HOUSE_ICON[house] || ""} ${esc(r.house)}</span>` : ""}
+                ${col === "spells" && r.incantation ? `<span class="badge">🪄 ${esc(r.incantation.replace(/\s*\(/, " ("))}</span>` : ""}
+                ${r.trailer ? `<a class="btn gold" href="${esc(r.trailer)}" target="_blank">▶ Watch trailer</a>` : ""}
+                <a class="btn" href="${esc(r.wiki)}" target="_blank">Read on the Harry Potter Wiki ↗</a>
+              </div>
+            </div>
+          </div>
+
+          ${paragraphs.map(([k, v]) => `<h4>${pretty(k)}</h4><p class="prose">${esc(v)}</p>`).join("")}
+          ${facts.length ? `<h4>Facts</h4><div class="facts">${facts.map(([k, v]) => `
+            <div class="fact"><div class="label">${pretty(k)}</div><div class="value">${esc(formatValue(v))}</div></div>`).join("")}</div>` : ""}
+          ${peopleLists.map(([k, v]) => `<h4>${pretty(k)} (${v.length})</h4><div class="chips">${v.map(personChip).join("")}</div>`).join("")}
+          ${lists.map(([k, v]) => `<h4>${pretty(k)}</h4><ul>${v.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
+          ${r.chapters?.length ? `<h4>Chapters (${r.chapters.length})</h4>${r.chapters.map((ch) => `
+            <details class="chapter"><summary>${ch.order}. ${esc(ch.title)}</summary><p>${esc(ch.summary || "No summary yet.")}</p></details>`).join("")}` : ""}
+
+          <details class="raw">
+            <summary>See the raw JSON the API returns</summary>
+            <pre>${esc(JSON.stringify({ data: r }, null, 2))}</pre>
+          </details>
+        </article>`;
+      linkPeople();
+    }
+
+    // ---------- Navigation: the part after # decides the page ----------
+    // #harry → Harry's page, #spells → list of spells, #spells/patronus-charm → one spell
+
+    function buildNav() {
+      $("nav").innerHTML = `<a href="#harry" data-route="harry">⚡ Harry</a>` +
+        Object.entries(COLLECTIONS).map(([col, c]) => `<a href="#${col}" data-route="${col}">${c.icon} ${c.label}</a>`).join("");
+    }
+
+    function route() {
+      const hash = decodeURIComponent(location.hash.slice(1)) || "harry";
+      const [col, slug] = hash.split("/");
+      route.current = hash;
+      document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.route === col));
+      clearInterval(aliasTimer);
+      scrollTo(0, 0);
+      if (COLLECTIONS[col]) slug ? showDetail(col, slug) : showList(col);
+      else { route.current = "harry"; showHarry(); }
+    }
+    addEventListener("hashchange", route);
+
+    // ---------- The enchanted ceiling ----------
+
+    for (let i = 0; i < 16; i++) {
+      const candle = document.createElement("div");
+      candle.className = "candle";
+      candle.style.left = `${Math.random() * 100}%`;
+      candle.style.top = `${3 + Math.random() * 35}%`;
+      candle.style.opacity = 0.25 + Math.random() * 0.45;
+      candle.style.scale = 0.6 + Math.random() * 0.7;
+      candle.style.animationDelay = `${-Math.random() * 7}s`;
+      $("candles").appendChild(candle);
+    }
+
+    const canvas = $("stars");
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+    function resize() {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      stars = Array.from({ length: Math.floor((innerWidth * innerHeight) / 5000) }, () => ({
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2, phase: Math.random() * Math.PI * 2,
+      }));
+    }
+    function twinkle(t) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff6dd";
+      for (const s of stars) {
+        ctx.globalAlpha = 0.25 + 0.6 * (0.5 + 0.5 * Math.sin(t / 900 + s.phase));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(twinkle);
+    }
+    addEventListener("resize", resize);
+    resize();
+    requestAnimationFrame(twinkle);
+
+    // ---------- Start ----------
+    buildNav();
+    route();
+  </script>
+</body>
+</html>
